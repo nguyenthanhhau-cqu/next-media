@@ -1,4 +1,3 @@
-// app/components/StoryFeed.tsx
 'use client'
 
 import Image from 'next/image';

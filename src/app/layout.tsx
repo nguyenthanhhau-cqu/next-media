@@ -12,12 +12,11 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+                                       children,}: Readonly<{
     children: React.ReactNode;
 }>) {
     return (
-        <ClerkProvider>
+        <ClerkProvider >
             <html lang="en">
             <body className={inter.className}>
             <div className={'w-ful bg-white px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64'}>
