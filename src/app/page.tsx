@@ -1,8 +1,8 @@
 import LeftMenu from "@/component/LeftMenu";
-import RightMenu from "@/component/RightMenu";
-import StoryFeed from "@/component/StoryFeed";
+import RightMenu from "@/component/rightMenu/RightMenu";
+import StoryFeed from "@/component/Story/StoryFeed";
 import AddPost from "@/component/AddPost";
-import Feed from "@/component/Feed";
+import Feed from "@/component/feed/Feed";
 
 const Homepage = () => {
     return (

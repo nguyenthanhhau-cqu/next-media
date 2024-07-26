@@ -68,6 +68,8 @@ model Like {
   postId    Int?
   Comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int?
+
+  @@unique([userId, postId])
 }
 
 model Follower {
