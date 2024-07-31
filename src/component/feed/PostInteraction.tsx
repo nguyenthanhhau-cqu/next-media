@@ -36,7 +36,7 @@ const PostInteraction: React.FC<PostInteractionProps> = ({
                                                              likes,
                                                              commentNumber,
                                                          }) => {
-    const { isLoaded, userId } = useAuth();
+    const {  userId } = useAuth();
 
     const [likeState, setLikeState] = useState<LikeState>({
         likeCount: likes.length,
