@@ -391,8 +391,8 @@ export const triggerEvent = async (postId: number) => {
             if (primaryEmail) {
                 await sendEmail(
                     primaryEmail.emailAddress,
-                    'Event Confirmation',
-                    `The event "${post.desc}" is confirmed.`
+                    'Bóng Đá Confirmation',
+                    `Xin Chào ${user.firstName},\n"${post.desc}". Ae nhớ đến đúng giờ nha 😘 \nThank you.`
                 );
             }
         }
@@ -441,8 +441,8 @@ export const cancelEvent = async (postId: number) => {
             if (primaryEmail) {
                 await sendEmail(
                     primaryEmail.emailAddress,
-                    'Event Cancellation',
-                    `We regret to inform you that the event "${post.desc}" has been cancelled.`
+                    'Bóng Đá Cancellation',
+                    `Xin Chào ${user.firstName},\n"${post.desc}".\nhas been cancelled 😭.`
                 );
             }
         }
