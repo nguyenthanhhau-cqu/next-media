@@ -1,10 +1,11 @@
 "use server"
 
-import {auth} from "@clerk/nextjs/server";
+import {auth,clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/client";
 import {z} from "zod";
 import {revalidatePath} from "next/cache";
 import {User} from "@prisma/client";
+import nodemailer from 'nodemailer';
 
 
 export const switchFollow = async (userId: string) => {
@@ -334,5 +335,126 @@ export const addStory = async (img: string) => {
 
     } catch (err) {
         console.log(err);
+    }
+};
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+    },
+});
+
+async function sendEmail(to: string, subject: string, text: string) {
+    try {
+        await transporter.sendMail({ from: process.env.GMAIL_USER, to, subject, text });
+        console.log('Email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+}
+
+export const triggerEvent = async (postId: number) => {
+    const { userId } = auth();
+
+    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        const post = await prisma.post.findUnique({
+            where: { id: postId },
+            include: { likes: true },
+        });
+
+        if (!post) {
+            throw new Error("Post not found");
+        }
+
+        // Get all users who liked the post
+        const likedUserIds = post.likes.map(like => like.userId);
+
+        console.log('Liked user IDs:', likedUserIds);
+
+        // Fetch user emails from Clerk
+        const usersResponse = await clerkClient.users.getUserList({ userId: likedUserIds });
+
+        if (!usersResponse || !usersResponse.data || !Array.isArray(usersResponse.data)) {
+            throw new Error(`Invalid response from Clerk: ${JSON.stringify(usersResponse)}`);
+        }
+
+        const users = usersResponse.data;
+
+        for (const user of users) {
+            const primaryEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId);
+            if (primaryEmail) {
+                await sendEmail(
+                    primaryEmail.emailAddress,
+                    'Event Confirmation',
+                    `The event "${post.desc}" is confirmed.`
+                );
+            }
+        }
+
+
+    } catch (err) {
+        console.error('Error in triggerEvent:', err);
+        // @ts-ignore
+        throw new Error(`Failed to trigger event: ${err.message}`);
+    }
+};
+export const cancelEvent = async (postId: number) => {
+    const { userId } = auth();
+
+    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        const post = await prisma.post.findUnique({
+            where: { id: postId },
+            include: { likes: true },
+        });
+
+        if (!post) {
+            throw new Error("Post not found");
+        }
+
+        // Get all users who liked the post
+        const likedUserIds = post.likes.map(like => like.userId);
+
+
+        // Fetch user emails from Clerk
+        const usersResponse = await clerkClient().users.getUserList({ userId: likedUserIds });
+
+        console.log('Fetched users response:', usersResponse);
+
+        if (!usersResponse || !usersResponse.data || !Array.isArray(usersResponse.data)) {
+            throw new Error(`Invalid response from Clerk: ${JSON.stringify(usersResponse)}`);
+        }
+
+        const users = usersResponse.data;
+
+        for (const user of users) {
+            const primaryEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId);
+            if (primaryEmail) {
+                await sendEmail(
+                    primaryEmail.emailAddress,
+                    'Event Cancellation',
+                    `We regret to inform you that the event "${post.desc}" has been cancelled.`
+                );
+            }
+        }
+
+
+        // await prisma.post.delete({
+        //     where: { id: postId },
+        // });
+
+    } catch (err) {
+        console.error('Error in cancelEvent:', err);
+        // @ts-ignore
+        throw new Error(`Failed to cancel event: ${err.message}`);
     }
 };

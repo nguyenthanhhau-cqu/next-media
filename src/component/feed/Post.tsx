@@ -5,6 +5,10 @@ import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
 import { auth } from "@clerk/nextjs/server";
+import { triggerEvent, cancelEvent } from "@/lib/action";
+import AdminControlsWrapper from "@/component/AdminControlsWrapper";
+
+
 
 type FeedPostType = PostType & {
     user: User;
@@ -14,6 +18,18 @@ type FeedPostType = PostType & {
 
 const Post = ({ post }: { post: FeedPostType }) => {
     const { userId } = auth();
+
+
+    const handleTriggerEvent = async () => {
+        await triggerEvent(post.id);
+    };
+
+    const handleCancelEvent = async () => {
+        await cancelEvent(post.id);
+    };
+
+
+
     return (
         <div className="flex flex-col gap-4">
             {/* USER */}
@@ -55,6 +71,10 @@ const Post = ({ post }: { post: FeedPostType }) => {
                     likes={post.likes}
                     commentNumber={post._count.comments}
                 />
+                <AdminControlsWrapper
+                    postId={post.id}
+                />
+
             </Suspense>
             <Suspense fallback="Loading...">
                 <Comments postId={post.id} />

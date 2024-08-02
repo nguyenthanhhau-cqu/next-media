@@ -14,9 +14,13 @@ const CommentList = ({
     comments: CommentWithUser[];
     postId: number;
 }) => {
+
+
     const { user } = useUser();
     const [commentState, setCommentState] = useState(comments);
     const [desc, setDesc] = useState("");
+
+
 
     const add = async () => {
         if (!user || !desc) return;

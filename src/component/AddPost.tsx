@@ -17,6 +17,7 @@ const AddPost = () => {
     }
 
 
+
     return (
         <div>
             {/* AVATAR */}
