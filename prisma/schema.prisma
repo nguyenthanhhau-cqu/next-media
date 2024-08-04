@@ -100,3 +100,12 @@ model Story {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String   @unique
 }
+
+model TeamDivision {
+  id          Int      @id @default(autoincrement())
+  postId      Int
+  teamA       String   @db.Text
+  teamB       String   @db.Text
+  substitutes String   @db.Text
+  createdAt   DateTime @default(now())
+}

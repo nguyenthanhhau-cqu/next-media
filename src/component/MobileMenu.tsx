@@ -1,9 +1,19 @@
 'use client'
 import React from 'react';
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 
 const MobileMenu = () => {
     const [isOpen, setIsOpen] = React.useState(false);
+    const { user, isLoaded } = useUser();
+
+    const handleLinkClick = () => {
+        setIsOpen(false);
+    };
+
+    // Determine the profile link
+    const profileLink = isLoaded && user ? `/profile/${user.username}` : '/profile';
+
     return (
         <div>
             <div className="flex flex-col gap-[4.5px] cursor-pointer md:hidden"
@@ -16,11 +26,9 @@ const MobileMenu = () => {
                 <div
                     className={'absolute left-0 top-24 w-full h-[calc(100vh-96px)] bg-white flex ' +
                         'flex-col items-center justify-center gap-6 font-medium text-xl z-10'}>
-                    <Link href={'/'}>Home</Link>
-                    <Link href={'/'}>Friends</Link>
-                    <Link href={'/'}>Groups</Link>
-                    <Link href={'/'}>Stories</Link>
-                    <Link href={'/'}>Login</Link>
+                    <Link href={'/'} onClick={handleLinkClick}>Home</Link>
+                    <Link href={'/team'} onClick={handleLinkClick}>Team Division</Link>
+                    <Link href={profileLink} onClick={handleLinkClick}>Profile</Link>
                 </div>
             )}
         </div>

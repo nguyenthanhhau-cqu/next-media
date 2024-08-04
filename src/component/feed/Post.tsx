@@ -5,8 +5,9 @@ import PostInteraction from "./PostInteraction";
 import { Suspense } from "react";
 import PostInfo from "./PostInfo";
 import { auth } from "@clerk/nextjs/server";
-import { triggerEvent, cancelEvent } from "@/lib/action";
 import AdminControlsWrapper from "@/component/AdminControlsWrapper";
+import AdminDividedTeam from "@/component/AdminDividedTeam";
+import UserInfo from "@/component/feed/UserInfor";
 
 
 
@@ -18,36 +19,19 @@ type FeedPostType = PostType & {
 
 const Post = ({ post }: { post: FeedPostType }) => {
     const { userId } = auth();
-
-
-    const handleTriggerEvent = async () => {
-        await triggerEvent(post.id);
-    };
-
-    const handleCancelEvent = async () => {
-        await cancelEvent(post.id);
-    };
-
-
+    const isAdmin = userId === 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU';
 
     return (
         <div className="flex flex-col gap-4">
             {/* USER */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Image
-                        src={post.user.avatar || "/noAvatar.png"}
-                        width={40}
-                        height={40}
-                        alt=""
-                        className="w-10 h-10 rounded-full"
-                    />
-                    <span className="font-medium">
-                        {post.user.name && post.user.surname
-                            ? post.user.name + " " + post.user.surname
-                            : post.user.username}
-                    </span>
-                </div>
+                <UserInfo
+                    userId={post.user.id}
+                    username={post.user.username}
+                    name={post.user.name}
+                    surname={post.user.surname}
+                    avatar={post.user.avatar}
+                />
                 {userId === post.user.id && <PostInfo postId={post.id} />}
             </div>
             {/* DESC */}
@@ -74,7 +58,7 @@ const Post = ({ post }: { post: FeedPostType }) => {
                 <AdminControlsWrapper
                     postId={post.id}
                 />
-
+                <AdminDividedTeam postId={post.id} isAdmin={isAdmin} />
             </Suspense>
             <Suspense fallback="Loading...">
                 <Comments postId={post.id} />

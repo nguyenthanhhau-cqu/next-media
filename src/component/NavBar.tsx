@@ -8,7 +8,7 @@ const NavBar = () => {
     return (
         <div className={'h-24 flex items-center justify-between'}>
             <div className={'md:hidden lg:block w-[20%]'}>
-                <Link className={'font-bold text-xl text-blue-600'} href={'/'}> HauF </Link>
+                <Link className={'font-bold text-xl text-blue-500'} href={'/'}>My-FC</Link>
             </div>
             <div className={'hidden  md:flex md:justify-center md:items-center w-[50%] text-sm'}>
                 <div className="flex gap-6 text-gray-600 ">

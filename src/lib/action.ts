@@ -458,3 +458,111 @@ export const cancelEvent = async (postId: number) => {
         throw new Error(`Failed to cancel event: ${err.message}`);
     }
 };
+function shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+export const divideTeams = async (postId: number) => {
+    const { userId } = auth();
+
+    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        const post = await prisma.post.findUnique({
+            where: { id: postId },
+            include: {
+                likes: {
+                    include: { user: true },
+                    orderBy: { createdAt: 'asc' }
+                }
+            },
+        });
+
+        if (!post) {
+            throw new Error("Post not found");
+        }
+
+        const players = post.likes.map(like => ({
+            id: like.user.id,
+            username: like.user.username,
+            name: like.user.name || '',
+            avatar: like.user.avatar || ''
+        }));
+
+        let teamA: typeof players = [];
+        let teamB: typeof players = [];
+        let substitutes: typeof players = [];
+
+        if (players.length <= 14) {
+            // If 14 or fewer players, divide them into two teams
+            const shuffledPlayers = shuffleArray([...players]);
+            const halfPoint = Math.ceil(shuffledPlayers.length / 2);
+            teamA = shuffledPlayers.slice(0, halfPoint);
+            teamB = shuffledPlayers.slice(halfPoint);
+        } else {
+            // If more than 14 players, take first 14 for teams, rest are substitutes
+            const mainPlayers = players.slice(0, 14);
+            substitutes = players.slice(14);
+
+            const shuffledMainPlayers = shuffleArray([...mainPlayers]);
+            teamA = shuffledMainPlayers.slice(0, 7);
+            teamB = shuffledMainPlayers.slice(7);
+        }
+
+        await prisma.teamDivision.create({
+            data: {
+                postId,
+                teamA: JSON.stringify(teamA),
+                teamB: JSON.stringify(teamB),
+                substitutes: JSON.stringify(substitutes)
+            }
+        });
+
+        revalidatePath('/team');
+    } catch (err) {
+        console.error('Error in divideTeams:', err);
+        // @ts-ignore
+        throw new Error(`Failed to divide teams: ${err.message}`);
+    }
+};
+export const deleteTeamDisplay = async () => {
+    const { userId } = auth();
+
+    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        await prisma.teamDivision.deleteMany({});
+        revalidatePath('/team');
+    } catch (err) {
+        console.error('Error in deleteTeamDisplay:', err);
+        // @ts-ignore
+        throw new Error(`Failed to delete team display: ${err.message}`);
+    }
+};
+export const getTeamDivision = async () => {
+    try {
+        const teamDivision = await prisma.teamDivision.findFirst({
+            orderBy: { createdAt: 'desc' }
+        });
+
+        if (!teamDivision) return null;
+
+        return {
+            teamA: JSON.parse(teamDivision.teamA),
+            teamB: JSON.parse(teamDivision.teamB),
+            substitutes: JSON.parse(teamDivision.substitutes)
+        };
+    } catch (err) {
+        console.error('Error in getTeamDivision:', err);
+        // @ts-ignore
+        throw new Error(`Failed to get team division: ${err.message}`);
+    }
+};

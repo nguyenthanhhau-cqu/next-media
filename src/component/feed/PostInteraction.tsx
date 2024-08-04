@@ -4,6 +4,7 @@ import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import React, { useOptimistic, useState, useEffect } from "react";
 import { switchLike } from "@/lib/action";
+import Link from "next/link";
 
 type User = {
     id: string;
@@ -141,8 +142,8 @@ const PostInteraction: React.FC<PostInteractionProps> = ({
                     <h4 className="font-semibold mb-2">Liked by:</h4>
                     <ul className="space-y-2">
                         {optimisticLike.likedUsers.map((user) => (
-                            <li key={user.id} className="flex items-center space-x-2">
-                                <Image
+                            <li key={user.id}>
+                                <Link className=" cursor-pointer flex items-center space-x-2" href={`/profile/${user.username}`}><Image
                                     src={user.avatar || "/noAvatar.png"}
                                     width={24}
                                     height={24}
@@ -150,6 +151,7 @@ const PostInteraction: React.FC<PostInteractionProps> = ({
                                     className="rounded-full"
                                 />
                                 <span>{user.name || user.username} {user.surname}</span>
+                                </Link>
                             </li>
                         ))}
                     </ul>
