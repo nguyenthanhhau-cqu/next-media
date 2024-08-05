@@ -358,7 +358,7 @@ async function sendEmail(to: string, subject: string, text: string) {
 export const triggerEvent = async (postId: number) => {
     const { userId } = auth();
 
-    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+    if (userId !== 'user_2kDaQgI2XRuouICyvx3L5l8K9AB') {
         throw new Error("Unauthorized");
     }
 
@@ -407,7 +407,7 @@ export const triggerEvent = async (postId: number) => {
 export const cancelEvent = async (postId: number) => {
     const { userId } = auth();
 
-    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+    if (userId !== 'user_2kDaQgI2XRuouICyvx3L5l8K9AB') {
         throw new Error("Unauthorized");
     }
 
@@ -469,7 +469,7 @@ function shuffleArray(array: any[]) {
 export const divideTeams = async (postId: number) => {
     const { userId } = auth();
 
-    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+    if (userId !== 'user_2kDaQgI2XRuouICyvx3L5l8K9AB') {
         throw new Error("Unauthorized");
     }
 
@@ -534,7 +534,7 @@ export const divideTeams = async (postId: number) => {
 export const deleteTeamDisplay = async () => {
     const { userId } = auth();
 
-    if (userId !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+    if (userId !== 'user_2kDaQgI2XRuouICyvx3L5l8K9AB') {
         throw new Error("Unauthorized");
     }
 

@@ -14,7 +14,7 @@ const AdminControls: React.FC<AdminControlsProps> = ({ postId, onTriggerEvent, o
     const { user } = useUser();
     const [isLoading, setIsLoading] = useState(false);
 
-    if (user?.id !== 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU') {
+    if (user?.id !== 'user_2kDaQgI2XRuouICyvx3L5l8K9AB') {
         return null;
     }
 

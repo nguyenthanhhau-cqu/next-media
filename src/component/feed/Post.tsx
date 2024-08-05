@@ -19,7 +19,7 @@ type FeedPostType = PostType & {
 
 const Post = ({ post }: { post: FeedPostType }) => {
     const { userId } = auth();
-    const isAdmin = userId === 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU';
+    const isAdmin = userId === 'user_2kDaQgI2XRuouICyvx3L5l8K9AB';
 
     return (
         <div className="flex flex-col gap-4">

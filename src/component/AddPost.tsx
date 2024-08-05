@@ -22,7 +22,7 @@ const AddPost = () => {
         <div>
             {/* AVATAR */}
             {
-                user?.id === 'user_2jlzdF9Zpb1sTsBa0W8rOHronjU' && (
+                user?.id === 'user_2kDaQgI2XRuouICyvx3L5l8K9AB' && (
                     <div className="p-4 bg-white shadow-md rounded-lg flex gap-4 justify-between text-sm">
                         <Image
                             src={user?.imageUrl || "/noAvatar.png"}
