@@ -9,8 +9,8 @@ import "slick-carousel/slick/slick-theme.css";
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
-    title: "Lama Dev Social Media App",
-    description: "Social media app built with Next.js",
+    title: "FC-Training Media App",
+    description: "Social media FC-Training",
 };
 
 export default function RootLayout({

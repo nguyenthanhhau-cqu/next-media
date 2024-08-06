@@ -392,7 +392,9 @@ export const triggerEvent = async (postId: number) => {
                 await sendEmail(
                     primaryEmail.emailAddress,
                     'Bóng Đá Confirmation',
-                    `Xin Chào ${user.firstName},\n"${post.desc}". Ae nhớ đến đúng giờ nha 😘 \nThank you.`
+                    `Xin Chào ${user.firstName},<br>
+                        ${post.desc}. Để check team đội nào ae vào <a href="https://haufc.site/team">đây</a>. Ae nhớ đến đúng giờ nha 😘 <br>
+                         Thank you.`
                 );
             }
         }
