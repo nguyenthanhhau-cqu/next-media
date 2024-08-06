@@ -375,8 +375,6 @@ export const triggerEvent = async (postId: number) => {
         // Get all users who liked the post
         const likedUserIds = post.likes.map(like => like.userId);
 
-        console.log('Liked user IDs:', likedUserIds);
-
         // Fetch user emails from Clerk
         const usersResponse = await clerkClient.users.getUserList({ userId: likedUserIds });
 
@@ -392,9 +390,7 @@ export const triggerEvent = async (postId: number) => {
                 await sendEmail(
                     primaryEmail.emailAddress,
                     'Bóng Đá Confirmation',
-                    `Xin Chào ${user.firstName},<br>
-                        ${post.desc}. Để check team đội nào ae vào <a href="https://haufc.site/team">đây</a>. Ae nhớ đến đúng giờ nha 😘 <br>
-                         Thank you.`
+                    `Xin Chào ${user.username},\n"${post.desc}".\nĐể check team đội nào ae vào https://haufc.site/team\nAe nhớ đến đúng giờ nha 😘\nThanks ${user.firstName} ${user.lastName}`
                 );
             }
         }
