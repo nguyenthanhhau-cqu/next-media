@@ -1,4 +1,3 @@
-// StoryViewer.tsx
 import { Story, User } from "@prisma/client";
 import Image from "next/image";
 

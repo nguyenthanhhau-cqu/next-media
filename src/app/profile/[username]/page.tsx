@@ -1,16 +1,16 @@
 import React from 'react';
-import Feed from "@/component/feed/Feed";
+import ProfileFeed from "@/component/feed/ProfileFeed";
 import RightMenu from "@/component/rightMenu/RightMenu";
 import Image from "next/image";
 import prisma from "@/lib/client";
-import {auth} from "@clerk/nextjs/server";
-import {notFound} from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation";
 
-const ProfilePage = async ({params}: { params: { username: string } }) => {
+const ProfilePage = async ({ params }: { params: { username: string } }) => {
     const username = params.username
 
     const user = await prisma.user.findFirst({
-        where: {username},
+        where: { username },
         include: {
             _count: {
                 select: {
@@ -23,15 +23,12 @@ const ProfilePage = async ({params}: { params: { username: string } }) => {
     });
 
     if (!user) {
-        // Handle the case where the user doesn't exist
-        // This could be redirecting to a 404 page or showing an error message
         return notFound();
     }
 
-    const {userId: currentUserId} = auth()
+    const { userId: currentUserId } = auth()
 
     if (!currentUserId) return notFound();
-
 
     return (
         <div className='flex gap-6 pt-6'>
@@ -49,7 +46,7 @@ const ProfilePage = async ({params}: { params: { username: string } }) => {
                         </div>
                     </div>
                     <RightMenu user={user}/>
-                    <Feed username={user.username}/>
+                    <ProfileFeed />
                 </div>
             </div>
             <div className="hidden lg:block w-[30%]"></div>

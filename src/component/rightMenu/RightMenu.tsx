@@ -16,8 +16,6 @@ const RightMenu = ({user}:{user?:User}) => {
                 </>
             ):null}
             <FriendRequest />
-            {/*<BirthDay/>*/}
-            {/*<Ad size={'md'}/>*/}
         </div>
     );
 };

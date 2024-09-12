@@ -31,7 +31,6 @@ type LikeState = {
 type PostInteractionProps = {
     postId: number;
     likes: { user: User }[];
-    commentNumber: number;
     isLikeDisabled: boolean;
 
 };
@@ -39,7 +38,6 @@ type PostInteractionProps = {
 const PostInteraction: React.FC<PostInteractionProps> = ({
                                                              postId,
                                                              likes,
-                                                             commentNumber,
                                                              isLikeDisabled,
 
                                                          }) => {
@@ -118,6 +116,9 @@ const PostInteraction: React.FC<PostInteractionProps> = ({
                             {optimisticLike.likeCount}
                             <span className="hidden md:inline"> Likes</span>
                         </span>
+
+
+
                     </div>
                     <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-xl">
                         <Image
@@ -128,9 +129,6 @@ const PostInteraction: React.FC<PostInteractionProps> = ({
                             className="cursor-pointer"
                         />
                         <span className="text-gray-300">|</span>
-                        <span className="text-gray-500">
-                            {commentNumber}<span className="hidden md:inline"> Comments</span>
-                        </span>
                     </div>
                 </div>
                 <div className="">

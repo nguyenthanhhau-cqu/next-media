@@ -7,7 +7,7 @@ import {revalidatePath} from "next/cache";
 import {User} from "@prisma/client";
 import nodemailer from 'nodemailer';
 import {toDate, toZonedTime} from 'date-fns-tz'
-import {parseISO} from "date-fns";
+import { parseISO} from "date-fns";
 
 
 export const switchFollow = async (userId: string) => {
@@ -194,43 +194,23 @@ export const updateProfile = async (
 };
 
 
-
-export const addComment = async (postId: number, desc: string) => {
-    const { userId } = auth();
-
-    if (!userId) throw new Error("User is not authenticated!");
-
-    try {
-        return await prisma.comment.create({
-            data: {
-                desc,
-                userId,
-                postId,
-            },
-            include: {
-                user: true,
-            },
-        });
-    } catch (err) {
-        console.log(err);
-        throw new Error("Something went wrong!");
-    }
-};
-
 export const addPost = async (formData: FormData, img: string) => {
     const title = formData.get("title") as string;
     const desc = formData.get("desc") as string;
     const eventStartTime = formData.get("eventStartTime") as string;
+    const penaltyAmount = formData.get("penaltyAmount") as string;
 
     const Title = z.string().min(1).max(100);
     const Desc = z.string().min(1).max(255);
     const EventStartTime = z.string().optional();
+    const PenaltyAmount = z.number().min(0).default(0.5);
 
     const validatedTitle = Title.safeParse(title);
     const validatedDesc = Desc.safeParse(desc);
     const validatedEventStartTime = EventStartTime.safeParse(eventStartTime);
+    const validatedPenaltyAmount = PenaltyAmount.safeParse(Number(penaltyAmount));
 
-    if (!validatedTitle.success || !validatedDesc.success || !validatedEventStartTime.success) {
+    if (!validatedTitle.success || !validatedDesc.success || !validatedEventStartTime.success || !validatedPenaltyAmount.success) {
         console.log("Validation failed");
         return;
     }
@@ -242,9 +222,7 @@ export const addPost = async (formData: FormData, img: string) => {
     try {
         let utcEventStartTime = null;
         if (eventStartTime) {
-            // Parse the input as Melbourne time
             const melbourneTime = toDate(eventStartTime, { timeZone: 'Australia/Melbourne' });
-            // Convert Melbourne time to UTC
             utcEventStartTime = toZonedTime(melbourneTime, 'UTC');
         }
 
@@ -254,7 +232,8 @@ export const addPost = async (formData: FormData, img: string) => {
                 desc: validatedDesc.data,
                 userId,
                 img,
-                eventStartTime: utcEventStartTime, // This will be stored as UTC in the database
+                eventStartTime: utcEventStartTime,
+                penaltyAmount: validatedPenaltyAmount.data,
             },
         });
 
@@ -262,7 +241,7 @@ export const addPost = async (formData: FormData, img: string) => {
     } catch (err) {
         console.log(err);
     }
-};;
+};
 
 export const deletePost = async (postId: number) => {
     const { userId } = auth();
@@ -281,6 +260,8 @@ export const deletePost = async (postId: number) => {
         console.log(err);
     }
 };
+
+
 export const switchLike = async (postId: number): Promise<User | null> => {
     const { userId } = auth();
 
@@ -291,7 +272,6 @@ export const switchLike = async (postId: number): Promise<User | null> => {
         if (!post) throw new Error("Post not found");
         if (post.isLikeDisabled) throw new Error("Likes are disabled for this post");
 
-
         const existingLike = await prisma.like.findUnique({
             where: {
                 userId_postId: {
@@ -301,13 +281,14 @@ export const switchLike = async (postId: number): Promise<User | null> => {
             },
         });
 
+        let result: User | null = null;
+
         if (existingLike) {
             await prisma.like.delete({
                 where: {
                     id: existingLike.id,
                 },
             });
-            return null;
         } else {
             const newLike = await prisma.like.create({
                 data: {
@@ -318,14 +299,35 @@ export const switchLike = async (postId: number): Promise<User | null> => {
                     user: true,
                 },
             });
-            return newLike.user;
+            result = newLike.user;
         }
+
+        // Fetch updated attendee
+        const updatedLikes = await prisma.like.findMany({
+            where: { postId },
+            include: { user: true },
+        });
+
+        // Use absolute URL for the API endpoint
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
+        // Send update to SSE clients
+        await fetch(`${apiUrl}/api/events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                postId,
+                attendees: updatedLikes.map(like => like.user),
+            }),
+        });
+
+        revalidatePath("/");
+        return result;
     } catch (err) {
         console.error(err);
         throw new Error("Failed to switch like");
     }
 };
-
 export const addStory = async (img: string) => {
     const { userId } = auth();
 
@@ -381,7 +383,7 @@ async function sendEmail(to: string, subject: string, text: string) {
 export const triggerEvent = async (postId: number) => {
     const { userId } = auth();
 
-    if (userId !== 'user_2kMGhFcDdkVuPB725T7KUPNXuJC') {
+    if (userId !== 'user_2kyEFBJyLszkG66jjaEO3ryToc7') {
         throw new Error("Unauthorized");
     }
 
@@ -428,7 +430,7 @@ export const triggerEvent = async (postId: number) => {
 export const cancelEvent = async (postId: number) => {
     const { userId } = auth();
 
-    if (userId !== 'user_2kMGhFcDdkVuPB725T7KUPNXuJC') {
+    if (userId !== 'user_2kyEFBJyLszkG66jjaEO3ryToc7') {
         throw new Error("Unauthorized");
     }
 
@@ -469,10 +471,6 @@ export const cancelEvent = async (postId: number) => {
         }
 
 
-        // await prisma.post.delete({
-        //     where: { id: postId },
-        // });
-
     } catch (err) {
         console.error('Error in cancelEvent:', err);
         // @ts-ignore
@@ -490,7 +488,7 @@ function shuffleArray(array: any[]) {
 export const divideTeams = async (postId: number) => {
     const { userId } = auth();
 
-    if (userId !== 'user_2kMGhFcDdkVuPB725T7KUPNXuJC') {
+    if (userId !== 'user_2kyEFBJyLszkG66jjaEO3ryToc7') {
         throw new Error("Unauthorized");
     }
 
@@ -555,7 +553,7 @@ export const divideTeams = async (postId: number) => {
 export const deleteTeamDisplay = async () => {
     const { userId } = auth();
 
-    if (userId !== 'user_2kMGhFcDdkVuPB725T7KUPNXuJC') {
+    if (userId !== 'user_2kyEFBJyLszkG66jjaEO3ryToc7') {
         throw new Error("Unauthorized");
     }
 
@@ -620,21 +618,10 @@ export const recordAttendance = async (postId: number, userId: string, timestamp
             data: {
                 postId,
                 userId,
-                attendedAt: attendanceTime // This will be stored as UTC automatically
+                attendedAt: attendanceTime
             }
         });
 
-        // Convert event start time and attendance time to Melbourne time for comparison
-        const eventStartTimeMelbourne = toZonedTime(post.eventStartTime, 'Australia/Melbourne');
-        const attendanceTimeMelbourne = toZonedTime(attendanceTime, 'Australia/Melbourne');
-
-        // Check if user is late and apply penalty if necessary
-        if (attendanceTimeMelbourne > eventStartTimeMelbourne) {
-            await prisma.user.update({
-                where: { id: userId },
-                data: { balance: { decrement: 0.5 } }
-            });
-        }
 
         revalidatePath(`/posts/${postId}`);
     } catch (err) {
@@ -691,7 +678,7 @@ export async function getAttendedPosts() {
 export async function toggleLikeButton(postId: number) {
     const { userId } = auth();
 
-    if (userId !== 'user_2kMGhFcDdkVuPB725T7KUPNXuJC') {
+    if (userId !== 'user_2kyEFBJyLszkG66jjaEO3ryToc7') {
         throw new Error("Unauthorized");
     }
 
@@ -711,45 +698,62 @@ export async function toggleLikeButton(postId: number) {
         return { success: false, error: 'Failed to toggle like button' };
     }
 }
-export async function applyLatePenalty(postId: number) {
+
+
+export const updatePost = async (
+    postId: number,
+    data: {
+        title: string;
+        desc: string;
+        eventStartTime: Date;
+        penaltyAmount: number;
+    }
+) => {
+    const { userId } = auth();
+
+    if (!userId) throw new Error("User is not authenticated!");
+
     try {
         const post = await prisma.post.findUnique({
             where: { id: postId },
-            include: { likes: { include: { user: true } } }
         });
 
-        if (!post || !post.eventStartTime) {
-            throw new Error("Post not found or no event start time set");
+        if (!post || post.userId !== userId) {
+            throw new Error("Post not found or user not authorized to edit this post");
         }
 
-        const melbourneNow = toZonedTime(new Date(), 'Australia/Melbourne');
-        const eventStartTimeMelbourne = toZonedTime(post.eventStartTime, 'Australia/Melbourne');
+        const Title = z.string().min(1).max(100);
+        const Desc = z.string().min(1).max(255);
+        const EventStartTime = z.date();
+        const PenaltyAmount = z.number().min(0);
 
-        if (melbourneNow < eventStartTimeMelbourne) {
-            throw new Error("Event hasn't started yet");
+        const validatedTitle = Title.safeParse(data.title);
+        const validatedDesc = Desc.safeParse(data.desc);
+        const validatedEventStartTime = EventStartTime.safeParse(data.eventStartTime);
+        const validatedPenaltyAmount = PenaltyAmount.safeParse(data.penaltyAmount);
+
+        if (!validatedTitle.success || !validatedDesc.success || !validatedEventStartTime.success || !validatedPenaltyAmount.success) {
+            console.log("Validation failed");
+            throw new Error("Invalid input data");
         }
 
-        const attendances = await prisma.attendance.findMany({
-            where: { postId: post.id }
+        // Convert Melbourne time to UTC
+        const utcEventStartTime = toZonedTime(data.eventStartTime, 'UTC');
+
+        await prisma.post.update({
+            where: { id: postId },
+            data: {
+                title: validatedTitle.data,
+                desc: validatedDesc.data,
+                eventStartTime: utcEventStartTime,
+                penaltyAmount: validatedPenaltyAmount.data,
+            },
         });
 
-        for (const like of post.likes) {
-            const userAttended = attendances.some(a => a.userId === like.userId);
-            const userAttendance = attendances.find(a => a.userId === like.userId);
-            const attendedLate = userAttended &&
-                toZonedTime(userAttendance!.attendedAt, 'Australia/Melbourne') > eventStartTimeMelbourne;
-
-            if (!userAttended || attendedLate) {
-                await prisma.user.update({
-                    where: { id: like.userId },
-                    data: { balance: { decrement: 0.5 } }
-                });
-            }
-        }
-
+        revalidatePath("/");
         return { success: true };
-    } catch (error) {
-        console.error('Error applying late penalty:', error);
-        return { success: false, error: 'Failed to apply late penalty' };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: 'Failed to update post' };
     }
-}
+};

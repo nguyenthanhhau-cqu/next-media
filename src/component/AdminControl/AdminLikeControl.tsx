@@ -25,13 +25,13 @@ export default function AdminLikeControl({ postId, initialIsLikeDisabled }: Admi
     };
 
     return (
-        <button
+        <span
             onClick={handleToggle}
-            className={`px-4 py-2 rounded w-32 text-sm  ${
-                isLikeDisabled ? 'bg-green-500' : 'bg-red-500'
-            } text-white `}
+            className={`cursor-pointer ${
+                isLikeDisabled ? 'text-green-500' : 'text-red-500'
+            }`}
         >
             {isLikeDisabled ? 'Enable' : 'Disable'} Likes
-        </button>
+        </span>
     );
 }

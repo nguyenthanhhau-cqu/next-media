@@ -17,7 +17,6 @@ const AdminControlsWrapper: React.FC<AdminControlsWrapperProps> = ({ postId, isT
         setIsLoading(true);
         try {
             await triggerEvent(postId);
-            // You might want to add some state update or notification here
         } catch (error) {
             console.error('Failed to trigger event:', error);
         } finally {
@@ -29,7 +28,6 @@ const AdminControlsWrapper: React.FC<AdminControlsWrapperProps> = ({ postId, isT
         setIsLoading(true);
         try {
             await cancelEvent(postId);
-            // You might want to add some state update or notification here
         } catch (error) {
             console.error('Failed to cancel event:', error);
         } finally {

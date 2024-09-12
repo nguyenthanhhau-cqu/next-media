@@ -1,4 +1,3 @@
-// StoryList.tsx
 "use client";
 
 import { useUser } from "@clerk/nextjs";
@@ -48,6 +47,7 @@ const StoryList = ({
                 work: "",
                 school: "",
                 createdAt: new Date(Date.now()),
+                penaltyApplied: false
             },
         });
 

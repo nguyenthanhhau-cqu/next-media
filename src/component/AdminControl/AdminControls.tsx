@@ -14,7 +14,7 @@ const AdminControls: React.FC<AdminControlsProps> = ({ postId, onTriggerEvent, o
     const { user } = useUser();
     const [isLoading, setIsLoading] = useState(false);
 
-    if (user?.id !== 'user_2kMGhFcDdkVuPB725T7KUPNXuJC') {
+    if (user?.id !== 'user_2kyEFBJyLszkG66jjaEO3ryToc7') {
         return null;
     }
 
@@ -41,22 +41,20 @@ const AdminControls: React.FC<AdminControlsProps> = ({ postId, onTriggerEvent, o
     };
 
     return (
-        <div className="mt-4 flex space-x-4">
-            <button
+        <>
+            <span
                 onClick={handleTriggerEvent}
-                className="bg-green-500 text-white px-4 py-2 rounded"
-                disabled={isLoading}
+                className={`cursor-pointer ${isLoading ? 'text-gray-400' : 'text-green-500'}`}
             >
-                {isLoading ? 'Processing...' : 'Trigger Event'}
-            </button>
-            <button
+                {isLoading ? 'Processing...' : 'Send Email'}
+            </span>
+            <span
                 onClick={handleCancelEvent}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-                disabled={isLoading}
+                className={`cursor-pointer ${isLoading ? 'text-gray-400' : 'text-red-500'}`}
             >
-                {isLoading ? 'Processing...' : 'Cancel Event'}
-            </button>
-        </div>
+                {isLoading ? 'Processing...' : 'Cancel Email'}
+            </span>
+        </>
     );
 };
 

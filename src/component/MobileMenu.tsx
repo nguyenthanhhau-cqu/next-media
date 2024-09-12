@@ -30,6 +30,7 @@ const MobileMenu = () => {
                     <Link href={'/team'} onClick={handleLinkClick}>Team Division</Link>
                     <Link href={profileLink} onClick={handleLinkClick}>Profile</Link>
                     <Link href={'/attended'} onClick={handleLinkClick}>Attendance</Link>
+                    <Link href={'/userBalance'} onClick={handleLinkClick}>Balance</Link>
 
                 </div>
             )}

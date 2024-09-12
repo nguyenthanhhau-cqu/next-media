@@ -1,4 +1,3 @@
-// StoryFeed.tsx
 import prisma from "@/lib/client";
 import { auth } from "@clerk/nextjs/server";
 import StoryCarousel from "./StoryCarousel";

@@ -1,6 +1,7 @@
 import React from 'react';
 import { getAttendedPosts } from '@/lib/action';
 import Image from 'next/image';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const AttendedPage = async () => {
     const attendedPosts = await getAttendedPosts();
@@ -24,7 +25,11 @@ const AttendedPage = async () => {
                                 <div>
                                     <span className="font-medium">{attendance.user.username}</span>
                                     <span className="text-gray-500 ml-2">
-                                        attended on {new Date(attendance.attendedAt).toLocaleString()}
+                                        attended on {formatInTimeZone(
+                                        new Date(attendance.attendedAt),
+                                        'Australia/Melbourne',
+                                        'yyyy-MM-dd HH:mm:ss'
+                                    )}
                                     </span>
                                 </div>
                             </div>
